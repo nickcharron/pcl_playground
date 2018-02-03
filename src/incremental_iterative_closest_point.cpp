@@ -15,6 +15,7 @@ typedef pcl::PointCloud<PointT> PointCloud;
   PointCloud::Ptr  cloud_out (new PointCloud);
   PointCloud::Ptr  cloud_prev (new PointCloud);
   PointCloud::Ptr  cloud_new (new PointCloud); // Cannot define these in for loop
+  PointCloud::Ptr  cloud_new_initialized (new PointCloud);
   PointCloud::Ptr  cloud_new_transformed (new PointCloud);
   PointCloud::Ptr  cloud_result (new PointCloud);
 
@@ -25,11 +26,11 @@ typedef pcl::PointCloud<PointT> PointCloud;
   {
       // Initialize first cloud
       pcl::PCLPointCloud2 cloud_intermediate;
-      pcl::io::loadPCDFile ("../pcds/bag3/pcd1.pcd", cloud_intermediate);
+      pcl::io::loadPCDFile ("/home/nick/bag_files/calibration/extracted_PCDs/L2L_calibration_02-02-2018-20_10_26/horzPCD1.pcd", cloud_intermediate);
       pcl::fromPCLPointCloud2 (cloud_intermediate, *cloud_out);
       *cloud_new = *cloud_out;
 
-      Eigen::Matrix4f newToPrev, prevToNew;
+      Eigen::Matrix4f newInitToOut;
       Eigen::Matrix4f globalTransform = Eigen::Matrix4f::Identity ();
 
 
@@ -47,7 +48,7 @@ typedef pcl::PointCloud<PointT> PointCloud;
       pcl::visualization::PointCloudColorHandlerCustom<PointT> out_h (cloud_out, 255, 255, 255);
 
       // Iterate over all point clouds - hard code
-      for (int i=2; i < 37; i++)
+      for (int i=2; i < 100; i++)
       {
           // Set prev cloud to new cloud before assigning another new cloud
           *cloud_prev = *cloud_new;
@@ -55,24 +56,44 @@ typedef pcl::PointCloud<PointT> PointCloud;
           // read and convert point cloud from pcd file
           pcl::PCLPointCloud2 cloud_intermediate;
           char pcdFileName[100];
-          sprintf(pcdFileName, "../pcds/bag3/pcd%d.pcd", i);
+          //sprintf(pcdFileName, "../pcds/bag3/pcd%d.pcd", i);
+          sprintf(pcdFileName, "/home/nick/bag_files/calibration/extracted_PCDs/L2L_calibration_02-02-2018-20_10_26/horzPCD%d.pcd", i);
           PCL_INFO ("Read PCD File: %s\n", pcdFileName);
           pcl::io::loadPCDFile (pcdFileName, cloud_intermediate);
           pcl::fromPCLPointCloud2 (cloud_intermediate, *cloud_new); //* convert from pcl/PCLPointCloud2 to pcl::PointCloud<T>
 
+          /*
+          // Create initial transformation estimate
+          Eigen::Affine3f transform_estimate = Eigen::Affine3f::Identity();
+          float incre_rot = 5*M_PI/180; //5 degree rotation
+          transform_estimate.translation() << 0, 0, 0;  // no translation
+          transform_estimate.rotate (Eigen::AngleAxisf (incre_rot, Eigen::Vector3f::UnitY())); //about y axis (pitch)
+          // ***** try changing the rotation vector to somewhere near the center
+          // of the sensor mount *******
+
+          // align new Scan
+          */
+
           // perform icp
-          pcl::IterativeClosestPoint<PointT, PointT> icp;
-          icp.setInputSource(cloud_new);
-          icp.setInputTarget(cloud_prev);
-          icp.align(*cloud_result);
+
+            pcl::IterativeClosestPoint<PointT, PointT> icp;
+
+            // we want to register the new cloud against the combined cloud that
+            // we are building. Registering against prev cloud causes drift.
+            // First we want to initialize which we can do with the last scan's
+            // pose:
+            pcl::transformPointCloud (*cloud_new, *cloud_new_initialized, globalTransform);
+            icp.setInputSource(cloud_new_initialized);
+            icp.setInputTarget(cloud_out);
+            icp.setMaximumIterations(20);
+            //icp.setInputTarget(cloud_prev);
+            icp.align(*cloud_result);
 
           // Get transforms
-          newToPrev = icp.getFinalTransformation ();
-          //prevToNew = newToPrev.inverse();
+          newInitToOut = icp.getFinalTransformation ();
 
           // Calculate transform between new point cloud and original
-          globalTransform = globalTransform * newToPrev;
-          //globalTransform = globalTransform * newToPrev.inverse();
+          globalTransform = globalTransform * newInitToOut;
 
           // Transform new cloud back in first cloud frame (original cloud)
           pcl::transformPointCloud (*cloud_new, *cloud_new_transformed, globalTransform);
