@@ -10,5 +10,7 @@ add_definitions(${PCL_DEFINITIONS})
 
 add_executable (iterative_closest_point src/iterative_closest_point.cpp)
 add_executable (incremental_iterative_closest_point src/incremental_iterative_closest_point.cpp)
+add_executable (calibrate_lidars_from_model src/calibrate_lidars_from_model.cpp)
 target_link_libraries (iterative_closest_point ${PCL_LIBRARIES})
 target_link_libraries (incremental_iterative_closest_point ${PCL_LIBRARIES})
+target_link_libraries (calibrate_lidars_from_model ${PCL_LIBRARIES})

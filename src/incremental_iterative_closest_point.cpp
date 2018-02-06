@@ -85,7 +85,7 @@ typedef pcl::PointCloud<PointT> PointCloud;
             pcl::transformPointCloud (*cloud_new, *cloud_new_initialized, globalTransform);
             icp.setInputSource(cloud_new_initialized);
             icp.setInputTarget(cloud_out);
-            icp.setMaximumIterations(20);
+            icp.setMaximumIterations(10);
             //icp.setInputTarget(cloud_prev);
             icp.align(*cloud_result);
 
