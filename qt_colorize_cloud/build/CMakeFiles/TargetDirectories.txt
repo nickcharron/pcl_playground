@@ -1,0 +1,4 @@
+/home/autonomoose/projects/qt_colorize_cloud/build/CMakeFiles/rebuild_cache.dir
+/home/autonomoose/projects/qt_colorize_cloud/build/CMakeFiles/edit_cache.dir
+/home/autonomoose/projects/qt_colorize_cloud/build/CMakeFiles/pcl_colorize_cloud.dir
+/home/autonomoose/projects/qt_colorize_cloud/build/CMakeFiles/pcl_colorize_cloud_automoc.dir

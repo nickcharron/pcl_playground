@@ -13,3 +13,7 @@ Here are some of the things included:
       at each step including one viewport with each new scan compared to old
       scan and one viewport showing the combined scan. You can keep visualizing
       it step by step as it incrementally adds your clouds.
+
+  - qt_colorize_cloud
+      This is a pcl point cloud viewer with gui that allows you to easily select
+      different pcd files and change the coloring scheme

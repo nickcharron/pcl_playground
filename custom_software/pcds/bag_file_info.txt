@@ -1,0 +1,11 @@
+Information on the bag files that are recorded and saved for calibration:
+
+Bag 1. 01-26_17:45: Scan of under the counter in the lab with objects blocking much
+                of the space for that there are clear surfaces to optimize against
+                and most measurements are close range so less error. Did back and
+                forth rotation
+
+Bag 2. 01-26_17:46: Same as last, but better quality scan I think
+
+Bag 3. 01-26_17:57: Scan of the whole SDIC lab. Did full 360 degree rotation (pitch)
+                    in place in front of Dylan's desk
